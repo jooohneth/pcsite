@@ -3,69 +3,48 @@ import time
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from pypartpicker import Client
+from rest_framework.decorators import api_view
+from .models import PCPart
+from .serializers import PCPartSerializer
+from django.db.models import Q
 
-class SearchPartsView(APIView):
-    def get(self, request):
-        keyword = request.GET.get("q")
-        region = request.GET.get("region", "ca")
-        client = Client(no_js=True) 
-        parts = []
+@api_view(['GET'])
+def get_parts(request):
+    """
+    Get PC parts from the database with optional filtering.
+    Query parameters:
+    - type: Filter by part type (CPU, GPU, etc.)
+    - manufacturer: Filter by manufacturer
+    - min_price: Filter by minimum price
+    - max_price: Filter by maximum price
+    """
+    try:
+        queryset = PCPart.objects
 
-        def format_part(part):
-            return {
-                "name": part.name,
-                "url": part.url,
-                "price": float(part.cheapest_price.total) if part.cheapest_price else None,
-            }
+        # Apply filters based on query parameters
+        part_type = request.query_params.get('type')
+        if part_type:
+            queryset = queryset.filter(type__iexact=part_type)
 
-        try:
-            queries = [keyword] if keyword else [
-                "Ryzen", "Intel CPU", "RTX", "RX", "GTX", "DDR4", "DDR5",
-                "NVMe SSD", "7200 RPM HDD", "Power Supply",
-                "PC Case", "120mm Fan", "ATX Motherboard"
-            ]
+        manufacturer = request.query_params.get('manufacturer')
+        if manufacturer:
+            queryset = queryset.filter(manufacturer__iexact=manufacturer)
 
-            for q in queries:
-                try:
-                    search_result = client.get_part_search(q, region=region)
-                    for part in search_result.parts:
-                        if part.cheapest_price:
-                            parts.append(format_part(part))
-                except Exception as e:
-                    print(f"Error during query '{q}': {e}")
-                time.sleep(1.2)
+        min_price = request.query_params.get('min_price')
+        if min_price and min_price.isdigit():
+            queryset = queryset.filter(price__gte=float(min_price))
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+        max_price = request.query_params.get('max_price')
+        if max_price and max_price.isdigit():
+            queryset = queryset.filter(price__lte=float(max_price))
 
+        # Get the filtered results
+        parts = queryset.all()
+        serializer = PCPartSerializer(parts, many=True)
+        return Response(serializer.data)
+    except Exception as e:
         return Response({
-            "query": keyword if keyword else "all",
-            "region": region,
-            "results": parts
-        }, status=status.HTTP_200_OK)
-        
-class PartSpecsView(APIView):
-    def get(self, request):
-        def run_async_part_fetch(client, url):
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                return loop.run_until_complete(client.get_part(url))
-            finally:
-                loop.close()
-        url = request.GET.get("url")
-        if not url:
-            return Response({"error": "Missing 'url' parameter"}, status=400)
+            "error": str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        try:
-            client = Client()
-            part = run_async_part_fetch(client, url)
-            return Response({
-                "name": part.name,
-                "url": part.url,
-                "price": float(part.cheapest_price.total) if part.cheapest_price else None,
-                "specs": part.specs or {},
-            })
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
+

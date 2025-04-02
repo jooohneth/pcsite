@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,11 +88,23 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.dummy',
+        'NAME': 'dummy'
     }
 }
 
+# MongoDB settings
+import mongoengine
+
+# Get the connection string and add database name if not present
+connection_string = os.getenv('MONGODB_CONNECTION_STRING')
+db_name = os.getenv('MONGODB_DB_NAME', 'pcparts_db')
+
+# Ensure the database name is in the connection string
+if '/' not in connection_string.split('?')[0]:
+    connection_string = connection_string.replace('/?', f'/{db_name}/?')
+
+mongoengine.connect(host=connection_string)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
