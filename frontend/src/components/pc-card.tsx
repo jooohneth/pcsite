@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Cpu, DollarSign, ExternalLink } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import DetailedPart from "./detailed-pc-part";
 
 export interface Specs {
   Cores?: string;
@@ -35,17 +37,6 @@ interface PCPartCardProps {
 }
 
 export function PCPartCard({ part }: PCPartCardProps) {
-  // Function to get the appropriate icon based on part type
-  const getTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "cpu":
-        return <Cpu className="h-4 w-4" />;
-      // Add more icons for other part types as needed
-      default:
-        return <Cpu className="h-4 w-4" />;
-    }
-  };
-
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md bg-black/90 text-white">
       <CardHeader className="pb-2">
@@ -54,7 +45,7 @@ export function PCPartCard({ part }: PCPartCardProps) {
             variant="outline"
             className="text-md font-bold text-blue-500 border-transparent bg-black shadow-xl"
           >
-            {getTypeIcon(part.type)}
+            <Cpu className="h-5 w-5" />
             <span className="ml-1">{part.type}</span>
           </Badge>
           <span className="flex items-center text-sm font-bold text-muted-foreground text-md">
@@ -79,15 +70,20 @@ export function PCPartCard({ part }: PCPartCardProps) {
       </CardContent>
       <Separator />
       <CardFooter className="pt-4">
-        <a
-          href={part.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-bold text-black "
-        >
-          View Details
-          <ExternalLink className="ml-2 h-4 w-4" />
-        </a>
+        <Dialog>
+          <DialogTrigger asChild>
+            <a
+              href="#"
+              className="flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-bold text-black hover:bg-gray-100"
+            >
+              View Details
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </a>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl bg-black/90 text-white [&>button]:hidden">
+            <DetailedPart part={part} />
+          </DialogContent>
+        </Dialog>
       </CardFooter>
     </Card>
   );
