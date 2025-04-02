@@ -6,45 +6,63 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from .models import PCPart
 from .serializers import PCPartSerializer
-from django.db.models import Q
+import logging
+
+logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def get_parts(request):
-    """
-    Get PC parts from the database with optional filtering.
-    Query parameters:
-    - type: Filter by part type (CPU, GPU, etc.)
-    - manufacturer: Filter by manufacturer
-    - min_price: Filter by minimum price
-    - max_price: Filter by maximum price
-    """
     try:
         queryset = PCPart.objects
 
-        # Apply filters based on query parameters
         part_type = request.query_params.get('type')
-        if part_type:
+        if part_type and part_type.lower() != 'all':
             queryset = queryset.filter(type__iexact=part_type)
 
         manufacturer = request.query_params.get('manufacturer')
-        if manufacturer:
+        if manufacturer and manufacturer.lower() != 'all':
             queryset = queryset.filter(manufacturer__iexact=manufacturer)
 
         min_price = request.query_params.get('min_price')
-        if min_price and min_price.isdigit():
-            queryset = queryset.filter(price__gte=float(min_price))
+        if min_price:
+            try:
+                min_price_float = float(min_price)
+                queryset = queryset.filter(price__gte=min_price_float)
+            except ValueError:
+                logger.warning(f"Invalid min_price value: {min_price}")
 
         max_price = request.query_params.get('max_price')
-        if max_price and max_price.isdigit():
-            queryset = queryset.filter(price__lte=float(max_price))
+        if max_price:
+            try:
+                max_price_float = float(max_price)
+                queryset = queryset.filter(price__lte=max_price_float)
+            except ValueError:
+                logger.warning(f"Invalid max_price value: {max_price}")
 
-        # Get the filtered results
+        search = request.query_params.get('search')
+        if search:
+            search = search.strip()
+            try:
+                queryset = queryset.filter(__raw__={
+                    '$or': [
+                        {'name': {'$regex': search, '$options': 'i'}},
+                        {'manufacturer': {'$regex': search, '$options': 'i'}},
+                        {'type': {'$regex': search, '$options': 'i'}},
+                        {'price': {'$regex': search, '$options': 'i'}}
+                    ]
+                })
+                print(f"Search results count: {queryset.count()}")
+            except Exception as e:
+                logger.error(f"Search error: {str(e)}")
+                raise
+
         parts = queryset.all()
         serializer = PCPartSerializer(parts, many=True)
         return Response(serializer.data)
     except Exception as e:
+        logger.error(f"Error in get_parts: {str(e)}", exc_info=True)
         return Response({
-            "error": str(e)
+            "error": "An error occurred while fetching parts. Please try again."
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

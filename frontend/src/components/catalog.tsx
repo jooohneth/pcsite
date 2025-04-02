@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useEffect, useCallback } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -11,63 +8,53 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { PCPartCard, type PCPart, type Specs } from "./pc-card";
+import { PCPartCard, type PCPart } from "./pc-card";
 import { cn } from "@/lib/utils";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FiltersModal, type FilterValues } from "./filter-modal";
+import { Search } from "lucide-react";
 
-const ITEMS_PER_PAGE = 8;
-
-const filterSchema = z.object({
-  type: z.string().optional(),
-  manufacturer: z.string().optional(),
-  minPrice: z.string().optional(),
-  maxPrice: z.string().optional(),
-  search: z.string().optional(),
-});
-
-type FilterValues = z.infer<typeof filterSchema>;
+const ITEMS_PER_PAGE = 12;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export default function Catalog() {
   const [parts, setParts] = useState<PCPart[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const form = useForm<FilterValues>({
-    resolver: zodResolver(filterSchema),
-    defaultValues: {
-      type: "all",
-      manufacturer: "all",
-      minPrice: "",
-      maxPrice: "",
-      search: "",
-    },
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+  const [activeFilters, setActiveFilters] = useState<FilterValues>({
+    type: "all",
+    manufacturer: "all",
+    minPrice: "",
+    maxPrice: "",
   });
 
-  const fetchParts = async (filters: FilterValues) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchParts = useCallback(async () => {
     try {
+      setLoading(true);
+      setError("");
       const params = new URLSearchParams();
-      if (filters.type && filters.type !== "all")
-        params.append("type", filters.type);
-      if (filters.manufacturer && filters.manufacturer !== "all")
-        params.append("manufacturer", filters.manufacturer);
-      if (filters.minPrice) params.append("min_price", filters.minPrice);
-      if (filters.maxPrice) params.append("max_price", filters.maxPrice);
-      if (filters.search) params.append("search", filters.search);
+
+      if (activeFilters.type !== "all")
+        params.append("type", activeFilters.type.toLowerCase());
+      if (activeFilters.manufacturer !== "all")
+        params.append("manufacturer", activeFilters.manufacturer);
+      if (activeFilters.minPrice)
+        params.append("min_price", activeFilters.minPrice);
+      if (activeFilters.maxPrice)
+        params.append("max_price", activeFilters.maxPrice);
+      if (debouncedSearchQuery.trim())
+        params.append("search", debouncedSearchQuery.trim());
 
       const queryString = params.toString();
       const url = `http://localhost:8000/api/parts/${
@@ -75,30 +62,35 @@ export default function Catalog() {
       }`;
 
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
       setParts(data);
+      if (data.length === 0) {
+        setError("No parts found matching your criteria");
+      }
       setCurrentPage(1);
     } catch (error) {
       console.error("Fetch error:", error);
-      setError("Failed to fetch parts");
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch parts"
+      );
+      setParts([]);
     } finally {
       setLoading(false);
     }
+  }, [activeFilters, debouncedSearchQuery]);
+
+  useEffect(() => {
+    fetchParts();
+  }, [fetchParts]);
+
+  const handleFiltersApply = (newFilters: FilterValues) => {
+    setActiveFilters(newFilters);
   };
-
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      fetchParts(value as FilterValues);
-    });
-    return () => subscription.unsubscribe();
-  }, [form.watch]);
-
-  useEffect(() => {
-    fetchParts(form.getValues());
-  }, []);
 
   const totalPages = Math.ceil(parts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -140,94 +132,26 @@ export default function Catalog() {
 
   return (
     <div className="mx-auto p-12 font-mono">
-      <div className="py-10 text-6xl text-center font-bold underline underline-offset-8 hover:underline-offset-[3rem] ease-in-out duration-800">
-        Products
+      <div className="pt-30 pb-15 text-4xl text-center font-bold">
+        <span className="underline underline-offset-8 hover:underline-offset-[3rem] ease-in-out duration-800">
+          Products
+        </span>
       </div>
 
-      <div className="flex flex-row justify-between items-center mt-18">
-        <div className="flex flex-row items-center gap-8 py-10">
-          <Form {...form}>
-            <div className="flex flex-row items-center gap-8">
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="CPU">CPU</SelectItem>
-                        <SelectItem value="GPU">GPU</SelectItem>
-                        <SelectItem value="RAM">RAM</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="manufacturer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Manufacturer</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select manufacturer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="all">All</SelectItem>
-                        <SelectItem value="AMD">AMD</SelectItem>
-                        <SelectItem value="Intel">Intel</SelectItem>
-                        <SelectItem value="NVIDIA">NVIDIA</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="minPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Min Price</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Min price" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="maxPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Max Price</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Max price" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-          </Form>
+      <div className="flex flex-row justify-between items-center mb-8">
+        <div className="flex items-center gap-4">
+          <FiltersModal onApplyFilters={handleFiltersApply} />
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search parts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-[300px] pl-10"
+            />
+          </div>
         </div>
+
         <Pagination>
           <PaginationContent>
             <PaginationItem>
