@@ -48,7 +48,6 @@ def get_parts(request):
                         {'name': {'$regex': search, '$options': 'i'}},
                         {'manufacturer': {'$regex': search, '$options': 'i'}},
                         {'type': {'$regex': search, '$options': 'i'}},
-                        {'price': {'$regex': search, '$options': 'i'}}
                     ]
                 })
                 print(f"Search results count: {queryset.count()}")
