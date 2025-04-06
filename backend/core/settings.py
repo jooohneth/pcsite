@@ -104,7 +104,8 @@ db_name = os.getenv('MONGODB_DB_NAME', 'pcparts_db')
 if '/' not in connection_string.split('?')[0]:
     connection_string = connection_string.replace('/?', f'/{db_name}/?')
 
-mongoengine.connect(host=connection_string)
+# Connect with TLS/SSL certificate verification disabled
+mongoengine.connect(host=connection_string, ssl=True, tlsAllowInvalidCertificates=True)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
