@@ -1,11 +1,15 @@
 import asyncio
 import time
+
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .models import PCPart
-from .serializers import PCPartSerializer
+from .models import PCPart, User
+from .serializers import PCPartSerializer, UserSerializer
+from django.views.decorators.csrf import csrf_exempt
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -65,4 +69,53 @@ def get_parts(request):
             "error": "An error occurred while fetching parts. Please try again."
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@csrf_exempt
+@api_view(['POST'])
+def register_view(request):
+    data = request.data
+    username = data.get('username')
+    password = data.get('password')
+    
+    if not username or not password:
+        return Response({'error': 'All fields required'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects(username=username).first():
+        return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    user = User(username=username)
+    user.set_password(password)
+    user.save()
+    serializer = UserSerializer(user)
+    return Response({
+        'message': 'User registered successfully',
+        'user': serializer.data
+    }, status=status.HTTP_201_CREATED)
 
+@csrf_exempt
+@api_view(['POST'])
+def login_view(request):
+    data = request.data
+    username = data.get('username')
+    password = data.get('password')
+    
+    if not username or not password:
+        return Response({'error': 'All fields required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    if not user.check_password(password):
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    payload = {
+        'id': str(user.id),
+        'exp': int(time.time()) + 60 * 60 * 24,
+        'iat': int(time.time())
+    }
+    
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+    serializer = UserSerializer(user)
+    return Response({
+        'token': token,
+        'user': serializer.data
+    })
