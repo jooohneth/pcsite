@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { PCPart } from "../pc-card";
 
-// Cart item interface with quantity
 interface CartItem {
   part: PCPart;
   quantity: number;
@@ -28,21 +27,44 @@ export function CartDrawer() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Load cart from localStorage on component mount
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
+
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Failed to parse cart from localStorage", e);
-      }
+        const parsedCart = JSON.parse(savedCart);
+        setCartItems(parsedCart);
+      } catch (e) {}
+    } else {
+      console.log("No cart data found in localStorage");
     }
   }, []);
 
-  // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    const handleCartUpdate = () => {
+      const savedCart = localStorage.getItem("cart");
+
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart);
+          setCartItems(parsedCart);
+        } catch (e) {
+          console.error("Failed to parse cart from localStorage", e);
+        }
+      }
+    };
+
+    window.addEventListener("cart-updated", handleCartUpdate);
+
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+    }
   }, [cartItems]);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -53,7 +75,10 @@ export function CartDrawer() {
   );
 
   const updateQuantity = (partId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
+    if (newQuantity < 1) {
+      removeFromCart(partId);
+      return;
+    }
 
     setCartItems((prev) =>
       prev.map((item) =>
@@ -63,11 +88,16 @@ export function CartDrawer() {
   };
 
   const removeFromCart = (partId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.part.id !== partId));
+    const updatedCart = cartItems.filter((item) => item.part.id !== partId);
+
+    setCartItems(updatedCart);
+
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
 
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem("cart");
   };
 
   return (
@@ -80,7 +110,7 @@ export function CartDrawer() {
           <ShoppingCart className="mr-2 h-5 w-5" />
           Cart
           {totalItems > 0 && (
-            <Badge className="absolute -top-2 -right-2 bg-black text-white">
+            <Badge className="absolute -top-2 -right-2 bg-red-600 text-white">
               {totalItems}
             </Badge>
           )}
@@ -111,16 +141,6 @@ export function CartDrawer() {
                       key={item.part.id}
                       className="flex items-center gap-4 py-4"
                     >
-                      <div className="bg-white/10 rounded-md p-2 flex items-center justify-center w-16 h-16">
-                        <img
-                          src="/placeholder.svg?height=60&width=60"
-                          alt={item.part.name}
-                          width={60}
-                          height={60}
-                          className="object-contain"
-                        />
-                      </div>
-
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-md truncate">
                           {item.part.name}
@@ -142,7 +162,7 @@ export function CartDrawer() {
                             updateQuantity(item.part.id, item.quantity - 1)
                           }
                         >
-                          <Minus className="h-3 w-3" />
+                          <Minus className="h-3 w-3 text-black" />
                         </Button>
                         <span className="w-6 text-center">{item.quantity}</span>
                         <Button
@@ -153,7 +173,7 @@ export function CartDrawer() {
                             updateQuantity(item.part.id, item.quantity + 1)
                           }
                         >
-                          <Plus className="h-3 w-3" />
+                          <Plus className="h-3 w-3 text-black" />
                         </Button>
                       </div>
 
@@ -187,10 +207,10 @@ export function CartDrawer() {
                 <Button className="bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg">
                   Checkout
                 </Button>
-                <div className="flex gap-2">
+                <div className="flex gap-2 text-black">
                   <Button
                     variant="outline"
-                    className="flex-1 border-white/20 hover:bg-white/10"
+                    className="flex-1 bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg"
                     onClick={clearCart}
                   >
                     Clear Cart
@@ -198,7 +218,7 @@ export function CartDrawer() {
                   <DrawerClose asChild>
                     <Button
                       variant="outline"
-                      className="flex-1 border-white/20 hover:bg-white/10"
+                      className="flex-1 bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg"
                     >
                       Continue Shopping
                     </Button>

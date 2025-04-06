@@ -12,18 +12,12 @@ interface AddToCartButtonProps {
   className?: string;
 }
 
-export function AddToCartButton({
-  part,
-  variant = "default",
-  size = "default",
-  className = "",
-}: AddToCartButtonProps) {
+export function AddToCartButton({ part }: AddToCartButtonProps) {
   const [isAdding, setIsAdding] = useState(false);
 
   const addToCart = () => {
     setIsAdding(true);
 
-    // Get current cart from localStorage
     const savedCart = localStorage.getItem("cart");
     let currentCart = [];
 
@@ -35,41 +29,32 @@ export function AddToCartButton({
       }
     }
 
-    // Check if item already exists in cart
     const existingItemIndex = currentCart.findIndex(
       (item: any) => item.part.id === part.id
     );
 
     if (existingItemIndex >= 0) {
-      // Increment quantity if item exists
       currentCart[existingItemIndex].quantity += 1;
     } else {
-      // Add new item with quantity 1
       currentCart.push({
         part: part,
         quantity: 1,
       });
     }
 
-    // Save updated cart to localStorage
     localStorage.setItem("cart", JSON.stringify(currentCart));
 
-    // Reset button state after animation
     setTimeout(() => {
       setIsAdding(false);
     }, 1000);
 
-    // Trigger a custom event to notify other components
     window.dispatchEvent(new CustomEvent("cart-updated"));
   };
 
   return (
     <Button
-      variant={variant}
-      size={size}
-      className={`${className} ${
-        isAdding ? "bg-green-600 hover:bg-green-700" : ""
-      }`}
+      variant="outline"
+      className="flex-1 bg-white text-black hover:bg-gray-100"
       onClick={addToCart}
       disabled={isAdding}
     >
