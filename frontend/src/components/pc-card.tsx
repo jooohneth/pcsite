@@ -35,6 +35,7 @@ export interface PCPart {
   price: number;
   url: string;
   specs: Specs;
+  description: string;
 }
 
 interface PCPartCardProps {

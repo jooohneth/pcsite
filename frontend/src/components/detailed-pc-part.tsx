@@ -17,6 +17,7 @@ interface DetailedPartProps {
 }
 
 const DetailedPart = ({ part }: DetailedPartProps) => {
+  console.log(part.description);
   return (
     <Card className="overflow-hidden bg-black/90 text-white p-6 border-0">
       <CardHeader className="pb-4">
@@ -36,6 +37,9 @@ const DetailedPart = ({ part }: DetailedPartProps) => {
         <CardDescription className="flex items-center text-xl font-bold text-green-500 mt-2">
           <DollarSign className="h-5 w-5" />
           {part.price}
+        </CardDescription>
+        <CardDescription className="flex items-center text-sm font-medium text-white/70 mt-2">
+          {part.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-6">
