@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
+import {
+  ShoppingCart,
+  Trash2,
+  Plus,
+  Minus,
+  ShoppingBag,
+  ArrowRightCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
@@ -204,16 +211,14 @@ export function CartDrawer() {
               </div>
 
               <DrawerFooter className="pt-2">
-                <Button className="bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg">
-                  Checkout
-                </Button>
                 <div className="flex gap-2 text-black">
                   <Button
                     variant="outline"
-                    className="flex-1 bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg"
+                    className="flex-1 bg-white text-black hover:bg-red-200 transition-all duration-700 text-lg"
                     onClick={clearCart}
                   >
                     Clear Cart
+                    <Trash2 className="ml-1 h-5 w-5" />
                   </Button>
                   <DrawerClose asChild>
                     <Button
@@ -221,9 +226,14 @@ export function CartDrawer() {
                       className="flex-1 bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg"
                     >
                       Continue Shopping
+                      <ArrowRightCircle className="ml-1 h-5 w-5" />
                     </Button>
                   </DrawerClose>
                 </div>
+
+                <Button className="bg-white text-black hover:bg-green-200 transition-all duration-800 text-lg p-6">
+                  Checkout <ShoppingBag className="ml-1 h-5 w-5" />
+                </Button>
               </DrawerFooter>
             </>
           ) : (
@@ -232,7 +242,8 @@ export function CartDrawer() {
               <p className="text-white/70 mb-6">Your cart is empty</p>
               <DrawerClose asChild>
                 <Button className="bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg">
-                  Continue Shopping
+                  Browse Parts
+                  <ArrowRightCircle className="ml-1 h-5 w-5" />
                 </Button>
               </DrawerClose>
             </div>

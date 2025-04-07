@@ -7,12 +7,10 @@ import type { PCPart } from "../pc-card";
 
 interface AddToCartButtonProps {
   part: PCPart;
-  variant?: "default" | "outline" | "secondary";
-  size?: "default" | "sm" | "lg" | "icon";
-  className?: string;
+  isFull: boolean;
 }
 
-export function AddToCartButton({ part }: AddToCartButtonProps) {
+export function AddToCartButton({ part, isFull }: AddToCartButtonProps) {
   const [isAdding, setIsAdding] = useState(false);
 
   const addToCart = () => {
@@ -46,7 +44,7 @@ export function AddToCartButton({ part }: AddToCartButtonProps) {
 
     setTimeout(() => {
       setIsAdding(false);
-    }, 1000);
+    }, 500);
 
     window.dispatchEvent(new CustomEvent("cart-updated"));
   };
@@ -54,19 +52,21 @@ export function AddToCartButton({ part }: AddToCartButtonProps) {
   return (
     <Button
       variant="outline"
-      className="flex-1 bg-white text-black hover:bg-gray-100"
+      className={`flex-1 bg-white text-black hover:bg-gray-100 ${
+        isAdding ? "bg-green-300" : ""
+      }`}
       onClick={addToCart}
       disabled={isAdding}
     >
       {isAdding ? (
         <>
-          <Check className="mr-2 h-4 w-4" />
-          Added
+          <Check className={`${isFull ? "mr-2" : "mr-0"} h-4 w-4`} />
+          {isFull && "Added"}
         </>
       ) : (
         <>
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          <ShoppingCart className={`${isFull ? "mr-2" : "mr-0"} h-4 w-4`} />
+          {isFull && "Add to Cart"}
         </>
       )}
     </Button>

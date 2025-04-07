@@ -67,7 +67,7 @@ const DetailedPart = ({ part }: DetailedPartProps) => {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
-            <AddToCartButton part={part} />
+            <AddToCartButton part={part} isFull={true} />
           </div>
         </div>
       </CardContent>

@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import DetailedPart from "./detailed-pc-part";
-
+import { AddToCartButton } from "./cart/add-to-cart";
 export interface Specs {
   Cores?: string;
   Threads?: string;
@@ -75,7 +75,7 @@ export function PCPartCard({ part }: PCPartCardProps) {
         </div>
       </CardContent>
       <Separator />
-      <CardFooter className="pt-4">
+      <CardFooter className="pt-4 flex justify-between gap-2">
         <Dialog>
           <DialogTrigger asChild>
             <a
@@ -91,6 +91,7 @@ export function PCPartCard({ part }: PCPartCardProps) {
             <DetailedPart part={part} />
           </DialogContent>
         </Dialog>
+        <AddToCartButton part={part} isFull={false} />
       </CardFooter>
     </Card>
   );
