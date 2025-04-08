@@ -9,9 +9,14 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Cpu, DollarSign, ExternalLink } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import DetailedPart from "./detailed-pc-part";
-
+import { AddToCartButton } from "./cart/add-to-cart";
 export interface Specs {
   Cores?: string;
   Threads?: string;
@@ -30,6 +35,7 @@ export interface PCPart {
   price: number;
   url: string;
   specs: Specs;
+  description: string;
 }
 
 interface PCPartCardProps {
@@ -69,7 +75,7 @@ export function PCPartCard({ part }: PCPartCardProps) {
         </div>
       </CardContent>
       <Separator />
-      <CardFooter className="pt-4">
+      <CardFooter className="pt-4 flex justify-between gap-2">
         <Dialog>
           <DialogTrigger asChild>
             <a
@@ -81,9 +87,11 @@ export function PCPartCard({ part }: PCPartCardProps) {
             </a>
           </DialogTrigger>
           <DialogContent className="max-w-3xl bg-black/90 text-white [&>button]:hidden">
+            <DialogTitle className="sr-only">{part.name} Details</DialogTitle>
             <DetailedPart part={part} />
           </DialogContent>
         </Dialog>
+        <AddToCartButton part={part} isFull={false} />
       </CardFooter>
     </Card>
   );

@@ -50,14 +50,14 @@ def get_parts(request):
                         {'type': {'$regex': search, '$options': 'i'}},
                     ]
                 })
-                print(f"Search results count: {queryset.count()}")
             except Exception as e:
                 logger.error(f"Search error: {str(e)}")
                 raise
 
-        parts = queryset.all()
+        parts = list(queryset)
         serializer = PCPartSerializer(parts, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+        return Response(data)
     except Exception as e:
         logger.error(f"Error in get_parts: {str(e)}", exc_info=True)
         return Response({

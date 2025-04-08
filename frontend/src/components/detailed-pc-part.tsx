@@ -8,14 +8,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Cpu, DollarSign, ExternalLink, ShoppingCart } from "lucide-react";
+import { Cpu, DollarSign, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AddToCartButton } from "./cart/add-to-cart";
 
 interface DetailedPartProps {
   part: PCPart;
 }
 
 const DetailedPart = ({ part }: DetailedPartProps) => {
+  console.log(part.description);
   return (
     <Card className="overflow-hidden bg-black/90 text-white p-6 border-0">
       <CardHeader className="pb-4">
@@ -35,6 +37,9 @@ const DetailedPart = ({ part }: DetailedPartProps) => {
         <CardDescription className="flex items-center text-xl font-bold text-green-500 mt-2">
           <DollarSign className="h-5 w-5" />
           {part.price}
+        </CardDescription>
+        <CardDescription className="flex items-center text-sm font-medium text-white/70 mt-2">
+          {part.description}
         </CardDescription>
       </CardHeader>
       <CardContent className="px-6">
@@ -62,13 +67,7 @@ const DetailedPart = ({ part }: DetailedPartProps) => {
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
-            <Button
-              variant="outline"
-              className="flex-1 bg-white text-black hover:bg-gray-100"
-            >
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Add to Cart
-            </Button>
+            <AddToCartButton part={part} isFull={true} />
           </div>
         </div>
       </CardContent>

@@ -5,4 +5,4 @@ from .models import PCPart
 class PCPartSerializer(mongo_serializers.DocumentSerializer):
     class Meta:
         model = PCPart
-        fields = ['id', 'name', 'manufacturer', 'type', 'price', 'url', 'specs'] 
+        fields = ['id', 'name', 'manufacturer', 'type', 'price', 'url', 'specs', 'description'] 

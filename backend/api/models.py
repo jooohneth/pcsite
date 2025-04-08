@@ -9,6 +9,7 @@ class PCPart(Document):
     price = DecimalField(precision=2, required=True)
     url = URLField(max_length=500, required=True)
     specs = DictField(required=True)  # This will store nested specifications
+    description = StringField(max_length=1000, required=False)
 
     meta = {
         'collection': 'products',  # Specify the exact collection name from MongoDB
