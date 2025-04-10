@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -6,9 +7,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { User } from "lucide-react";
+import { LoginForm } from "./auth/LoginForm";
+import { RegisterForm } from "./auth/RegisterForm";
 
 const Nav = () => {
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+
+  const handleRegisterSuccess = () => {
+    setIsRegisterOpen(false);
+    setIsLoginOpen(true);
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginOpen(false);
+  };
+
   return (
     <div className="flex justify-between items-center px-10 py-8 bg-black font-mono text-white rounded-md shadow-xl scale-90">
       <Link to="/">
@@ -37,22 +53,33 @@ const Nav = () => {
                 </p>
               </div>
               <div className="grid gap-2">
-                <Link to="/login">
-                  <Button
-                    variant="outline"
-                    className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                  >
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button
-                    variant="outline"
-                    className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                  >
-                    Register
-                  </Button>
-                </Link>
+                <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                    >
+                      Login
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
+                    <LoginForm onSuccess={handleLoginSuccess} />
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                    >
+                      Register
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
+                    <RegisterForm onSuccess={handleRegisterSuccess} />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           </PopoverContent>
