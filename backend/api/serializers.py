@@ -6,7 +6,7 @@ from .models import PCPart, User
 class PCPartSerializer(mongo_serializers.DocumentSerializer):
     class Meta:
         model = PCPart
-        fields = ['id', 'name', 'manufacturer', 'type', 'price', 'url', 'specs']
+        fields = ['id', 'name', 'manufacturer', 'type', 'price', 'url', 'specs', 'description']
 
 class UserSerializer(mongo_serializers.DocumentSerializer):
     class Meta:
