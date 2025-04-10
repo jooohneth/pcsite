@@ -9,13 +9,14 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface RegisterFormProps {
   onSuccess?: () => void;
   isAuthed?: boolean;
 }
 
-export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
+export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -43,6 +44,7 @@ export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
       } else {
         setMessage(data.message || "Registration successful! Please login.");
         if (onSuccess) onSuccess();
+        toast.success("Registration successful! Please login.");
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";

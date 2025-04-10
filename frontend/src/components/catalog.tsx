@@ -136,7 +136,7 @@ export default function Catalog() {
 
   return (
     <div className="mx-auto p-12 font-mono scale-90">
-      <div className="pt-30 pb-15 text-4xl text-center font-bold">
+      <div className="py-15 text-4xl text-center font-bold">
         <span className="underline underline-offset-8 hover:underline-offset-[3rem] ease-in-out duration-800">
           Products
         </span>

@@ -10,6 +10,7 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -43,8 +44,8 @@ export function LoginForm({ onSuccess, setIsAuthed }: LoginFormProps) {
         if (onSuccess) onSuccess();
         if (setIsAuthed) setIsAuthed(true);
         setTimeout(() => navigate("/"), 500);
-
         localStorage.setItem("auth-token", data.token);
+        toast.success("Login successful!");
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";

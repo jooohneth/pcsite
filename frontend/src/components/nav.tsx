@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { User } from "lucide-react";
 import { LoginForm } from "./auth/LoginForm";
 import { RegisterForm } from "./auth/RegisterForm";
+import { toast } from "sonner";
 
 const Nav = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -40,7 +41,7 @@ const Nav = () => {
         <h1 className="text-4xl font-bold">PCSite</h1>
       </Link>
       <div className="flex items-center gap-4">
-      <CartDrawer />
+        <CartDrawer />
         <Popover>
           <PopoverTrigger asChild>
             <Avatar className="w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center">
@@ -71,7 +72,10 @@ const Nav = () => {
                   <Button
                     variant="outline"
                     className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                    onClick={handleLogout}
+                    onClick={() => {
+                      handleLogout();
+                      toast.warning("Logged out!");
+                    }}
                   >
                     Logout
                   </Button>
