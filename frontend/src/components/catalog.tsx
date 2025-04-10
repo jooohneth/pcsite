@@ -61,7 +61,11 @@ export default function Catalog() {
         queryString ? `?${queryString}` : ""
       }`;
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem("auth-token")}`,
+        },
+      });
       const data = await response.json();
 
       if (!response.ok) {

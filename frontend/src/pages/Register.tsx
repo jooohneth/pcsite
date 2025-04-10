@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,15 +13,15 @@ import {
 
 interface RegisterFormProps {
   onSuccess?: () => void;
-  isAuthed?: boolean;
 }
 
-export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
+export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate(); // Keep for navigation after success
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +43,9 @@ export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
         setError(data.error || "Registration failed. Please try again.");
       } else {
         setMessage(data.message || "Registration successful! Please login.");
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(); // Call success callback
+        // Optionally navigate or close modal after delay
+        // setTimeout(() => navigate("/login"), 1000);
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";
@@ -95,14 +98,11 @@ export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
         {message && <p className="text-sm text-green-500">{message}</p>}
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button">Cancel</Button>
+            <Button variant="ghost" type="button">
+              Cancel
+            </Button>
           </DialogClose>
-          <Button
-            type="submit"
-            className="bg-neutral-900 border-neutral-700 hover:bg-white/90 hover:text-black"
-          >
-            Register
-          </Button>
+          <Button type="submit">Register</Button>
         </DialogFooter>
       </form>
     </>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { User } from "lucide-react";
 import { LoginForm } from "./auth/LoginForm";
@@ -15,6 +15,9 @@ import { RegisterForm } from "./auth/RegisterForm";
 const Nav = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(
+    localStorage.getItem("auth-token") !== null
+  );
 
   const handleRegisterSuccess = () => {
     setIsRegisterOpen(false);
@@ -25,6 +28,11 @@ const Nav = () => {
     setIsLoginOpen(false);
   };
 
+  const handleLogout = () => {
+    setIsAuthed(false);
+    localStorage.removeItem("auth-token");
+  };
+
   return (
     <div className="flex justify-between items-center px-10 py-8 bg-black font-mono text-white rounded-md shadow-xl scale-90">
       <Link to="/">
@@ -33,15 +41,17 @@ const Nav = () => {
       <div className="flex items-center gap-4">
         <Popover>
           <PopoverTrigger asChild>
-            <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
-              <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="@shadcn"
-                className=""
-              />
-              <AvatarFallback>
-                <User className="h-5 w-5" />
-              </AvatarFallback>
+            <Avatar className="w-10 h-10 cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center">
+              {isAuthed ? (
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="@shadcn"
+                />
+              ) : (
+                <div className="flex items-center justify-center bg-gray-200 rounded-full w-10 h-10">
+                  <User className="text-black" />
+                </div>
+              )}
             </Avatar>
           </PopoverTrigger>
           <PopoverContent className="w-48 bg-black text-white border-neutral-700 mr-4">
@@ -49,37 +59,57 @@ const Nav = () => {
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Account</h4>
                 <p className="text-sm text-muted-foreground">
-                  Access your account or create a new one.
+                  {isAuthed
+                    ? "Manage your account or logout."
+                    : "Access your account or create a new one."}
                 </p>
               </div>
               <div className="grid gap-2">
-                <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                    >
-                      Login
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
-                    <LoginForm onSuccess={handleLoginSuccess} />
-                  </DialogContent>
-                </Dialog>
+                {isAuthed ? (
+                  <Button
+                    variant="outline"
+                    className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
+                ) : (
+                  <>
+                    <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                        >
+                          Login
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
+                        <LoginForm
+                          onSuccess={handleLoginSuccess}
+                          setIsAuthed={setIsAuthed}
+                        />
+                      </DialogContent>
+                    </Dialog>
 
-                <Dialog open={isRegisterOpen} onOpenChange={setIsRegisterOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                    <Dialog
+                      open={isRegisterOpen}
+                      onOpenChange={setIsRegisterOpen}
                     >
-                      Register
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
-                    <RegisterForm onSuccess={handleRegisterSuccess} />
-                  </DialogContent>
-                </Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                        >
+                          Register
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px] bg-black text-white border-neutral-700">
+                        <RegisterForm onSuccess={handleRegisterSuccess} />
+                      </DialogContent>
+                    </Dialog>
+                  </>
+                )}
               </div>
             </div>
           </PopoverContent>

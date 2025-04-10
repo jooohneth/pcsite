@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,39 +11,36 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-interface RegisterFormProps {
+interface LoginFormProps {
   onSuccess?: () => void;
-  isAuthed?: boolean;
 }
 
-export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
+export function LoginForm({ onSuccess }: LoginFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setMessage("");
-    if (password !== password2) {
-      setError("Passwords do not match");
-      return;
-    }
     try {
-      const response = await fetch("http://localhost:8000/api/register/", {
+      const response = await fetch("http://localhost:8000/api/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
+
       if (!response.ok) {
-        setError(data.error || "Registration failed. Please try again.");
+        setError(data.error || "Login failed. Please check your credentials.");
       } else {
-        setMessage(data.message || "Registration successful! Please login.");
+        setMessage(data.message || "Login successful!");
         if (onSuccess) onSuccess();
+        setTimeout(() => navigate("/"), 500);
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";
@@ -56,38 +54,30 @@ export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Register</DialogTitle>
+        <DialogTitle>Login</DialogTitle>
         <DialogDescription>
-          Create a new account to save your builds and preferences.
+          Enter your credentials to access your account.
         </DialogDescription>
       </DialogHeader>
-      <form className="space-y-4 py-4" onSubmit={handleRegister}>
+      <form className="space-y-4 py-4" onSubmit={handleLogin}>
         <div className="space-y-2">
-          <Label htmlFor="register-username">Username</Label>
+          <Label htmlFor="login-username">Username</Label>
           <Input
+            required
             value={username}
-            id="register-username"
+            id="login-username"
             onChange={(e) => setUsername(e.target.value)}
             className="bg-neutral-900 border-neutral-700"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="register-password">Password</Label>
+          <Label htmlFor="login-password">Password</Label>
           <Input
+            required
             type="password"
-            id="register-password"
+            id="login-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-neutral-900 border-neutral-700"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="register-password2">Confirm Password</Label>
-          <Input
-            type="password"
-            id="register-password2"
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
             className="bg-neutral-900 border-neutral-700"
           />
         </div>
@@ -95,14 +85,11 @@ export function RegisterForm({ onSuccess, isAuthed }: RegisterFormProps) {
         {message && <p className="text-sm text-green-500">{message}</p>}
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button">Cancel</Button>
+            <Button variant="ghost" type="button">
+              Cancel
+            </Button>
           </DialogClose>
-          <Button
-            type="submit"
-            className="bg-neutral-900 border-neutral-700 hover:bg-white/90 hover:text-black"
-          >
-            Register
-          </Button>
+          <Button type="submit">Login</Button>
         </DialogFooter>
       </form>
     </>

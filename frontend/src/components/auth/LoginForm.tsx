@@ -13,9 +13,10 @@ import {
 
 interface LoginFormProps {
   onSuccess?: () => void;
+  setIsAuthed?: (isAuthed: boolean) => void;
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {
+export function LoginForm({ onSuccess, setIsAuthed }: LoginFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -40,7 +41,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
       } else {
         setMessage(data.message || "Login successful!");
         if (onSuccess) onSuccess();
+        if (setIsAuthed) setIsAuthed(true);
         setTimeout(() => navigate("/"), 500);
+
+        localStorage.setItem("auth-token", data.token);
       }
     } catch (err: unknown) {
       let errorMessage = "An unexpected error occurred. Please try again.";
@@ -85,11 +89,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         {message && <p className="text-sm text-green-500">{message}</p>}
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="ghost" type="button">
-              Cancel
-            </Button>
+            <Button type="button">Cancel</Button>
           </DialogClose>
-          <Button type="submit">Login</Button>
+          <Button
+            type="submit"
+            className="bg-neutral-900 border-neutral-700 hover:bg-white/90 hover:text-black"
+          >
+            Login
+          </Button>
         </DialogFooter>
       </form>
     </>
