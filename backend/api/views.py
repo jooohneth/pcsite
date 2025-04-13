@@ -9,6 +9,8 @@ from rest_framework.decorators import api_view
 from .models import PCPart, User
 from .serializers import PCPartSerializer, UserSerializer
 from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+
 
 import logging
 
@@ -118,3 +120,51 @@ def login_view(request):
         'token': token,
         'user': serializer.data
     })
+    
+
+@csrf_exempt
+@api_view(['POST'])
+def get_cart_tdp(request):
+    try:
+        part_ids = request.data.get("ids", [])
+        if not part_ids or not isinstance(part_ids, list):
+            return Response({"error": "Expected list of part IDs"}, status=400)
+
+        
+        object_ids = []
+        for pid in part_ids:
+            try:
+                object_ids.append(ObjectId(pid))
+            except:
+                continue  
+
+        parts = PCPart.objects(id__in=object_ids)
+
+        
+        total_tdp = sum(part.numeric_spec("TDP") for part in parts)
+
+        psu_warnings = []
+        for part in parts:
+            if part.type.strip().upper() == "PSU":
+                wattage = part.numeric_spec("Wattage")
+                if wattage == 0:
+                    psu_warnings.append({
+                        "psu_name": part.name,
+                        "wattage": "Unknown",
+                        "warning": f"Could not read wattage for PSU: {part.name}"
+                    })
+                elif total_tdp > wattage:
+                    psu_warnings.append({
+                        "psu_name": part.name,
+                        "wattage": wattage,
+                        "warning": f"Total TDP ({total_tdp}W) exceeds PSU wattage ({wattage}W)"
+                    })
+
+        return Response({
+            "total_tdp": total_tdp,
+            "psu_warnings": psu_warnings
+        })
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+    

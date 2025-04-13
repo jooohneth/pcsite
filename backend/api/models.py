@@ -60,3 +60,16 @@ class PCPart(Document):
     @property
     def socket(self):
         return self.specs.get('Socket')
+
+
+    def numeric_spec(self, key):
+        try:
+            raw = self.specs.get(key, "")
+            if not raw:
+                return 0
+            numeric = ''.join(filter(str.isdigit, raw))
+            return int(numeric) if numeric else 0
+        except:
+            return 0
+        
+    
