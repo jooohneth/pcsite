@@ -8,6 +8,7 @@ import {
   Minus,
   ShoppingBag,
   ArrowRightCircle,
+  Cpu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +24,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { PCPart } from "../pc-card";
 
 interface CartItem {
-  part: PCPart;
+  id: string;
+  name: string;
+  manufacturer: string;
+  type: string;
+  price: number;
   quantity: number;
 }
 
@@ -77,7 +81,7 @@ export function CartDrawer() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.part.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
@@ -89,13 +93,13 @@ export function CartDrawer() {
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.part.id === partId ? { ...item, quantity: newQuantity } : item
+        item.id === partId ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
   const removeFromCart = (partId: string) => {
-    const updatedCart = cartItems.filter((item) => item.part.id !== partId);
+    const updatedCart = cartItems.filter((item) => item.id !== partId);
 
     setCartItems(updatedCart);
 
@@ -144,19 +148,23 @@ export function CartDrawer() {
               <ScrollArea className="h-[50vh] px-4">
                 <div className="space-y-4">
                   {cartItems.map((item) => (
-                    <div
-                      key={item.part.id}
-                      className="flex items-center gap-4 py-4"
-                    >
+                    <div key={item.id} className="flex items-center gap-4 py-4">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-md truncate">
-                          {item.part.name}
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="text-sm font-bold text-blue-500 border-transparent bg-black shadow-xl"
+                          >
+                            <Cpu className="h-5 w-5" />
+                            <span className="ml-1">{item.type}</span>
+                          </Badge>
+                        </div>
+                        <h4 className="pl-2 font-bold text-md truncate">
+                          {item.name}
                         </h4>
-                        <p className="text-sm text-white/70">
-                          {item.part.manufacturer}
-                        </p>
-                        <p className="text-green-500 font-bold">
-                          ${item.part.price}
+
+                        <p className="pl-2 text-green-500 font-bold">
+                          ${item.price}
                         </p>
                       </div>
 
@@ -166,7 +174,7 @@ export function CartDrawer() {
                           size="icon"
                           className="h-8 w-8 rounded-full border-white/20"
                           onClick={() =>
-                            updateQuantity(item.part.id, item.quantity - 1)
+                            updateQuantity(item.id, item.quantity - 1)
                           }
                         >
                           <Minus className="h-3 w-3 text-black" />
@@ -177,7 +185,7 @@ export function CartDrawer() {
                           size="icon"
                           className="h-8 w-8 rounded-full border-white/20"
                           onClick={() =>
-                            updateQuantity(item.part.id, item.quantity + 1)
+                            updateQuantity(item.id, item.quantity + 1)
                           }
                         >
                           <Plus className="h-3 w-3 text-black" />
@@ -188,7 +196,7 @@ export function CartDrawer() {
                         variant="ghost"
                         size="icon"
                         className="text-white/70 hover:text-white hover:bg-red-500/20"
-                        onClick={() => removeFromCart(item.part.id)}
+                        onClick={() => removeFromCart(item.id)}
                       >
                         <Trash2 className="h-5 w-5" />
                       </Button>
