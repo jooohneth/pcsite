@@ -6,9 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .models import PCPart, User
-from .serializers import PCPartSerializer, UserSerializer
+from .models import PCPart, User, Order
+from .serializers import PCPartSerializer, UserSerializer, OrderSerializer
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_mongoengine import viewsets as mongo_viewsets
+from .permissions import IsAuthenticatedCustom
 
 import logging
 
@@ -118,3 +120,24 @@ def login_view(request):
         'token': token,
         'user': serializer.data
     })
+
+class OrderViewSet(mongo_viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticatedCustom]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user:
+            try:
+                return Order.objects.filter(user=user).order_by('-created_at')
+            except TypeError:
+                logger.error(f"TypeError filtering orders for user {user}. Is request.user a MongoEngine User object?", exc_info=True)
+                return Order.objects.none()
+            except Exception as e:
+                logger.error(f"Error filtering orders for user {user}: {e}", exc_info=True)
+                return Order.objects.none()
+        else:
+            return Order.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
