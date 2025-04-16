@@ -54,7 +54,7 @@ const Nav = () => {
                   alt="@shadcn"
                 />
               ) : (
-                <div className="flex items-center justify-center bg-gray-200 rounded-full w-10 h-10">
+                <div className="flex items-center justify-center bg-white rounded-full w-10 h-10">
                   <User className="text-black" />
                 </div>
               )}
