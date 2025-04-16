@@ -70,6 +70,21 @@ def get_parts(request):
             "error": "An error occurred while fetching parts. Please try again."
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+def get_part_by_id(request, part_id):
+    """Fetches a single PCPart by its ID."""
+    try:
+        part = PCPart.objects.get(id=part_id)
+        serializer = PCPartSerializer(part)
+        return Response(serializer.data)
+    except PCPart.DoesNotExist:
+        return Response({'error': 'Part not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error in get_part_by_id for ID {part_id}: {str(e)}", exc_info=True)
+        return Response({
+            "error": "An error occurred while fetching the part. Please try again."
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @csrf_exempt
 @api_view(['POST'])
 def register_view(request):
