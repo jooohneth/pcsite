@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   ArrowRightCircle,
   Cpu,
-  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
