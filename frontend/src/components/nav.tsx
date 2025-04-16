@@ -41,7 +41,7 @@ const Nav = () => {
   return (
     <div className="flex justify-between items-center px-10 py-8 bg-black font-mono text-white rounded-md shadow-xl scale-90">
       <Link to="/">
-        <h1 className="text-4xl font-bold">PCSite</h1>
+        <h1 className="text-4xl font-bold">Node_Zero</h1>
       </Link>
       <div className="flex items-center gap-4">
         <CartDrawer />
