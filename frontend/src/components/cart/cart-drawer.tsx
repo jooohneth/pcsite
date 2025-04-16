@@ -24,6 +24,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface CartItem {
   id: string;
@@ -31,6 +32,11 @@ interface CartItem {
   manufacturer: string;
   type: string;
   price: number;
+  quantity: number;
+}
+
+interface OrderItem {
+  product_id: string;
   quantity: number;
 }
 
@@ -109,6 +115,46 @@ export function CartDrawer() {
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem("cart");
+  };
+
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("auth-token");
+    const cart = localStorage.getItem("cart");
+
+    const cartItems = JSON.parse(cart!);
+
+    const orderItems: OrderItem[] = cartItems.map((item: CartItem) => ({
+      product_id: item.id,
+      quantity: item.quantity,
+    }));
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/orders/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_items_input: orderItems,
+          shipping_cost_input: parseFloat(
+            (Math.random() * (25 - 5) + 5).toFixed(2)
+          ),
+          taxes_input: parseFloat((Math.random() * (50 - 10) + 10).toFixed(2)),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to checkout");
+      }
+
+      localStorage.removeItem("cart");
+      setCartItems([]);
+      toast.success("Order placed successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to checkout");
+    }
   };
 
   return (
@@ -208,13 +254,13 @@ export function CartDrawer() {
               <Separator className="my-4 bg-white/10" />
 
               <div className="px-4 py-2">
-                <div className="flex justify-between text-lg mb-2">
-                  <span>Subtotal</span>
-                  <span className="font-bold">${subtotal.toFixed(2)}</span>
-                </div>
                 <div className="flex justify-between text-sm text-white/70 mb-4">
-                  <span>Shipping</span>
+                  <span>Shipping and Tax</span>
                   <span>Calculated at checkout</span>
+                </div>
+                <div className="flex justify-between text-lg mb-2 font-bold">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -239,7 +285,10 @@ export function CartDrawer() {
                   </DrawerClose>
                 </div>
 
-                <Button className="bg-white text-black hover:bg-green-200 transition-all duration-800 text-lg p-6">
+                <Button
+                  className="bg-white text-black hover:bg-green-200 transition-all duration-800 text-lg p-6"
+                  onClick={handleCheckout}
+                >
                   Checkout <ShoppingBag className="ml-1 h-5 w-5" />
                 </Button>
               </DrawerFooter>
