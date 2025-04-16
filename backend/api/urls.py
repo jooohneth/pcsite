@@ -10,5 +10,7 @@ urlpatterns = [
     path('parts/<str:part_id>/', views.get_part_by_id, name='get-part-by-id'),
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
+    path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),
+    path('session-status/', views.session_status, name='session-status'),
     path('', include(router.urls)),
 ] 
