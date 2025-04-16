@@ -5,6 +5,7 @@ import { ShoppingCart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { PCPart } from "../pc-card";
 import { toast } from "sonner";
+
 interface AddToCartButtonProps {
   part: PCPart;
   isFull: boolean;
