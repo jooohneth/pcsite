@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Trash2,
@@ -8,6 +9,7 @@ import {
   Minus,
   ShoppingBag,
   ArrowRightCircle,
+  Cpu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,16 +25,26 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { PCPart } from "../pc-card";
+import { toast } from "sonner";
 
 interface CartItem {
-  part: PCPart;
+  id: string;
+  name: string;
+  manufacturer: string;
+  type: string;
+  price: number;
+  quantity: number;
+}
+
+interface OrderItem {
+  product_id: string;
   quantity: number;
 }
 
 export function CartDrawer() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -77,7 +89,7 @@ export function CartDrawer() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.part.price * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
 
@@ -89,13 +101,13 @@ export function CartDrawer() {
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.part.id === partId ? { ...item, quantity: newQuantity } : item
+        item.id === partId ? { ...item, quantity: newQuantity } : item
       )
     );
   };
 
   const removeFromCart = (partId: string) => {
-    const updatedCart = cartItems.filter((item) => item.part.id !== partId);
+    const updatedCart = cartItems.filter((item) => item.id !== partId);
 
     setCartItems(updatedCart);
 
@@ -105,6 +117,47 @@ export function CartDrawer() {
   const clearCart = () => {
     setCartItems([]);
     localStorage.removeItem("cart");
+  };
+
+  const handleCheckout = async () => {
+    const token = localStorage.getItem("auth-token");
+    const cart = localStorage.getItem("cart");
+
+    const cartItems = JSON.parse(cart!);
+
+    const orderItems: OrderItem[] = cartItems.map((item: CartItem) => ({
+      product_id: item.id,
+      quantity: item.quantity,
+    }));
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/orders/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          order_items_input: orderItems,
+          shipping_cost_input: parseFloat(
+            (Math.random() * (25 - 5) + 5).toFixed(2)
+          ),
+          taxes_input: parseFloat((Math.random() * (50 - 10) + 10).toFixed(2)),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to checkout");
+      }
+
+      localStorage.removeItem("cart");
+      setCartItems([]);
+      toast.success("Order placed successfully");
+      navigate("/checkout");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to checkout");
+    }
   };
 
   return (
@@ -144,19 +197,23 @@ export function CartDrawer() {
               <ScrollArea className="h-[50vh] px-4">
                 <div className="space-y-4">
                   {cartItems.map((item) => (
-                    <div
-                      key={item.part.id}
-                      className="flex items-center gap-4 py-4"
-                    >
+                    <div key={item.id} className="flex items-center gap-4 py-4">
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-md truncate">
-                          {item.part.name}
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className="text-sm font-bold text-blue-500 border-transparent bg-black shadow-xl"
+                          >
+                            <Cpu className="h-5 w-5" />
+                            <span className="ml-1">{item.type}</span>
+                          </Badge>
+                        </div>
+                        <h4 className="pl-2 font-bold text-md truncate">
+                          {item.name}
                         </h4>
-                        <p className="text-sm text-white/70">
-                          {item.part.manufacturer}
-                        </p>
-                        <p className="text-green-500 font-bold">
-                          ${item.part.price}
+
+                        <p className="pl-2 text-green-500 font-bold">
+                          ${item.price}
                         </p>
                       </div>
 
@@ -166,7 +223,7 @@ export function CartDrawer() {
                           size="icon"
                           className="h-8 w-8 rounded-full border-white/20"
                           onClick={() =>
-                            updateQuantity(item.part.id, item.quantity - 1)
+                            updateQuantity(item.id, item.quantity - 1)
                           }
                         >
                           <Minus className="h-3 w-3 text-black" />
@@ -177,7 +234,7 @@ export function CartDrawer() {
                           size="icon"
                           className="h-8 w-8 rounded-full border-white/20"
                           onClick={() =>
-                            updateQuantity(item.part.id, item.quantity + 1)
+                            updateQuantity(item.id, item.quantity + 1)
                           }
                         >
                           <Plus className="h-3 w-3 text-black" />
@@ -188,7 +245,7 @@ export function CartDrawer() {
                         variant="ghost"
                         size="icon"
                         className="text-white/70 hover:text-white hover:bg-red-500/20"
-                        onClick={() => removeFromCart(item.part.id)}
+                        onClick={() => removeFromCart(item.id)}
                       >
                         <Trash2 className="h-5 w-5" />
                       </Button>
@@ -200,13 +257,13 @@ export function CartDrawer() {
               <Separator className="my-4 bg-white/10" />
 
               <div className="px-4 py-2">
-                <div className="flex justify-between text-lg mb-2">
-                  <span>Subtotal</span>
-                  <span className="font-bold">${subtotal.toFixed(2)}</span>
-                </div>
                 <div className="flex justify-between text-sm text-white/70 mb-4">
-                  <span>Shipping</span>
+                  <span>Shipping and Tax</span>
                   <span>Calculated at checkout</span>
+                </div>
+                <div className="flex justify-between text-lg mb-2 font-bold">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -231,7 +288,10 @@ export function CartDrawer() {
                   </DrawerClose>
                 </div>
 
-                <Button className="bg-white text-black hover:bg-green-200 transition-all duration-800 text-lg p-6">
+                <Button
+                  className="bg-white text-black hover:bg-green-200 transition-all duration-800 text-lg p-6"
+                  onClick={handleCheckout}
+                >
                   Checkout <ShoppingBag className="ml-1 h-5 w-5" />
                 </Button>
               </DrawerFooter>

@@ -78,10 +78,7 @@ export function PCPartCard({ part }: PCPartCardProps) {
       <CardFooter className="pt-4 flex justify-between gap-2">
         <Dialog>
           <DialogTrigger asChild>
-            <a
-              href="#"
-              className="flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-bold text-black hover:bg-gray-100"
-            >
+            <a className="flex w-full items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-bold text-black hover:bg-gray-100">
               View Details
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>

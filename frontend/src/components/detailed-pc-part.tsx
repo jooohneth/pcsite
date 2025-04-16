@@ -17,7 +17,6 @@ interface DetailedPartProps {
 }
 
 const DetailedPart = ({ part }: DetailedPartProps) => {
-  console.log(part.description);
   return (
     <Card className="overflow-hidden bg-black/90 text-white p-6 border-0">
       <CardHeader className="pb-4">

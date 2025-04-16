@@ -5,6 +5,7 @@ import { ShoppingCart, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { PCPart } from "../pc-card";
 import { toast } from "sonner";
+
 interface AddToCartButtonProps {
   part: PCPart;
   isFull: boolean;
@@ -28,7 +29,7 @@ export function AddToCartButton({ part, isFull }: AddToCartButtonProps) {
     }
 
     const existingItemIndex = currentCart.findIndex(
-      (item: any) => item.part.id === part.id
+      (item: any) => item.id === part.id
     );
 
     if (existingItemIndex >= 0) {
@@ -37,11 +38,22 @@ export function AddToCartButton({ part, isFull }: AddToCartButtonProps) {
       toast.success("Added to cart!");
     } else {
       currentCart.push({
-        part: part,
+        id: part.id,
+        name: part.name,
+        type: part.type,
+        price: part.price,
         quantity: 1,
       });
       toast.success("Added to cart!");
     }
+
+    currentCart = currentCart.map((item: PCPart & { quantity: number }) => ({
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      price: item.price,
+      quantity: item.quantity,
+    }));
 
     localStorage.setItem("cart", JSON.stringify(currentCart));
 
