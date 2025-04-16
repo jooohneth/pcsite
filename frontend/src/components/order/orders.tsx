@@ -20,6 +20,7 @@ import {
 
 import { useEffect, useState } from "react";
 import Item from "./items";
+import { Loader2 } from "lucide-react";
 
 interface Order {
   id: string;
@@ -41,8 +42,10 @@ interface Order {
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setIsLoading(true);
     const token = localStorage.getItem("auth-token");
 
     const fetchOrders = async () => {
@@ -60,6 +63,7 @@ const Orders = () => {
       const data = await response.json();
 
       setOrders(data);
+      setIsLoading(false);
     };
 
     fetchOrders();
@@ -72,6 +76,12 @@ const Orders = () => {
         <SheetDescription>View your order history here.</SheetDescription>
       </SheetHeader>
       <ScrollArea className="px-4 w-full">
+        {isLoading && (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </div>
+        )}
+
         {orders.length > 0 && (
           <>
             <div className="grid grid-cols-5 items-center gap-4 underline underline-offset-4 text-sm text-muted-foreground">
@@ -133,7 +143,7 @@ const Orders = () => {
           </>
         )}
 
-        {orders.length <= 0 && (
+        {orders.length <= 0 && !isLoading && (
           <div className="flex justify-center items-center h-full">
             <p className="text-muted-foreground">No orders found</p>
           </div>
