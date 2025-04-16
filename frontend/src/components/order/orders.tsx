@@ -119,7 +119,7 @@ const Orders = () => {
                           {order.user.username}
                         </DialogDescription>
 
-                        <ScrollArea>
+                        <ScrollArea className="h-[50vh] mt-4">
                           {order.items.map((item) => (
                             <Item key={item.product_id} id={item.product_id} />
                           ))}

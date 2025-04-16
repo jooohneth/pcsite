@@ -33,7 +33,7 @@ const Item = ({ id }: ItemProps) => {
   }, []);
 
   return (
-    <div className="flex-1 min-w-0 py-4">
+    <div className="flex-1 min-w-0 py-4 pr-6">
       <div className="flex justify-between">
         <div>
           <h4 className="pl-2 font-bold text-md truncate">{itemInfo?.name}</h4>
