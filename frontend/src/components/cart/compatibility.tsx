@@ -150,7 +150,14 @@ const CompatibilityModal: React.FC<CompatibilityModalProps> = ({
               </div>
 
               <h4 className="font-semibold mt-4 mb-2 flex items-center">
-                <Power className="h-5 w-5 mr-2 text-green-400" /> PSU Status:
+                <Power
+                  className={`h-5 w-5 mr-2 ${
+                    compatibilityData.psu_warnings.length === 0
+                      ? "text-green-400"
+                      : "text-red-500"
+                  }`}
+                />{" "}
+                PSU Status:
               </h4>
               {compatibilityData.psu_warnings.length === 0 ? (
                 <Alert className="bg-green-900/50 border-green-700 text-green-300">
@@ -171,8 +178,10 @@ const CompatibilityModal: React.FC<CompatibilityModalProps> = ({
                       <AlertTriangle className="h-4 w-4 !text-yellow-400" />
                       <AlertTitle>Warning: {warning.psu_name}</AlertTitle>
                       <AlertDescription>
-                        {warning.warning} (PSU Wattage: {warning.wattage}
-                        {typeof warning.wattage === "number" ? "W" : ""})
+                        <div className="!text-yellow-100">
+                          {warning.warning} (PSU Wattage: {warning.wattage}
+                          {typeof warning.wattage === "number" ? "W" : ""})
+                        </div>
                       </AlertDescription>
                     </Alert>
                   ))}
