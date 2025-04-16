@@ -14,6 +14,9 @@ import { LoginForm } from "./auth/LoginForm";
 import { RegisterForm } from "./auth/RegisterForm";
 import { toast } from "sonner";
 
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
+import Orders from "@/components/order/orders";
+
 const Nav = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -69,16 +72,29 @@ const Nav = () => {
               </div>
               <div className="grid gap-2">
                 {isAuthed ? (
-                  <Button
-                    variant="outline"
-                    className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
-                    onClick={() => {
-                      handleLogout();
-                      toast.warning("Logged out!");
-                    }}
-                  >
-                    Logout
-                  </Button>
+                  <>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                        >
+                          View Orders
+                        </Button>
+                      </SheetTrigger>
+                      <Orders />
+                    </Sheet>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-black border-neutral-700 hover:bg-neutral-800 hover:text-white"
+                      onClick={() => {
+                        handleLogout();
+                        toast.warning("Logged out!");
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <Dialog open={isLoginOpen} onOpenChange={setIsLoginOpen}>
