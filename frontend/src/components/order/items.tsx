@@ -49,11 +49,11 @@ const Item = ({ id }: ItemProps) => {
           <h4 className="pl-2 font-bold text-md truncate">{itemInfo?.name}</h4>
           <p className="pl-2 text-muted-foreground">{itemInfo?.manufacturer}</p>
         </div>
-        <div>
+        <div className="flex flex-col items-end">
           <div className="flex items-center gap-2">
             <Badge
               variant="outline"
-              className="text-sm font-bold text-blue-500 border-transparent bg-black shadow-xl"
+              className="text-sm font-bold text-blue-500 border-transparent bg-black shadow-xl pr-0"
             >
               <Cpu className="h-5 w-5" />
               <span className="ml-1">{itemInfo?.type}</span>
