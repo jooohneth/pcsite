@@ -176,7 +176,7 @@ def create_checkout_session(request):
                 },
             ],
             mode='payment',
-            return_url=f'http://localhost:5173/return?session_id={{CHECKOUT_SESSION_ID}}',
+            return_url=f'https://nodezero.vercel.app/return?session_id={{CHECKOUT_SESSION_ID}}',
         )
         return Response({'clientSecret': checkout_session.client_secret})
     except stripe.error.StripeError as e:
