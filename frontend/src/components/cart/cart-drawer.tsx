@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   ArrowRightCircle,
   Cpu,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+
+import CompatibilityModal from "./compatibility";
+
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -177,9 +181,14 @@ export function CartDrawer() {
       <DrawerContent className="bg-black text-white border-t border-white/20">
         <div className="mx-auto w-full max-w-5xl">
           <DrawerHeader>
-            <DrawerTitle className="text-2xl font-bold flex items-center">
-              <ShoppingCart className="mr-2 h-6 w-6" />
-              Your Cart
+            <DrawerTitle className="text-2xl font-bold flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="mr-2 h-6 w-6" />
+                Your Cart
+              </div>
+              <div>
+                <CompatibilityModal cartItems={cartItems} />
+              </div>
             </DrawerTitle>
             <DrawerDescription className="text-white/70">
               {totalItems === 0
