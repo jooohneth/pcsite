@@ -54,8 +54,6 @@ export function CartDrawer() {
         const parsedCart = JSON.parse(savedCart);
         setCartItems(parsedCart);
       } catch (e) {}
-    } else {
-      console.log("No cart data found in localStorage");
     }
   }, []);
 
