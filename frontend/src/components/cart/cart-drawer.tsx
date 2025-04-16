@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ShoppingCart,
   Trash2,
@@ -43,6 +44,7 @@ interface OrderItem {
 export function CartDrawer() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedCart = localStorage.getItem("cart");
@@ -151,6 +153,7 @@ export function CartDrawer() {
       localStorage.removeItem("cart");
       setCartItems([]);
       toast.success("Order placed successfully");
+      navigate("/checkout");
     } catch (err) {
       console.error(err);
       toast.error("Failed to checkout");
