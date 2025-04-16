@@ -12,5 +12,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('create-checkout-session/', views.create_checkout_session, name='create-checkout-session'),
     path('session-status/', views.session_status, name='session-status'),
+    path("cart/tdp/", views.get_cart_tdp, name="cart-tdp"),
     path('', include(router.urls)),
 ] 
