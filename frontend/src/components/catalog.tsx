@@ -57,7 +57,7 @@ export default function Catalog() {
         params.append("search", debouncedSearchQuery.trim());
 
       const queryString = params.toString();
-      const url = `http://localhost:8000/api/parts/${
+      const url = `http://100.25.138.249:8000/api/parts/${
         queryString ? `?${queryString}` : ""
       }`;
 

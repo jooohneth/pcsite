@@ -15,9 +15,12 @@ const Item = ({ id }: ItemProps) => {
     const fetchItem = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/parts/${id}/`, {
-          method: "GET",
-        });
+        const response = await fetch(
+          `http://100.25.138.249:8000/api/parts/${id}/`,
+          {
+            method: "GET",
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch item");

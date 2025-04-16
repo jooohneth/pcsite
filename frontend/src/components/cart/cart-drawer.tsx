@@ -132,7 +132,7 @@ export function CartDrawer() {
     }));
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/orders/", {
+      const response = await fetch("http://100.25.138.249:8000/api/orders/", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

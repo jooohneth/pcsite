@@ -29,7 +29,7 @@ export function LoginForm({ onSuccess, setIsAuthed }: LoginFormProps) {
     setError("");
     setMessage("");
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
+      const response = await fetch("http://100.25.138.249:8000/api/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
