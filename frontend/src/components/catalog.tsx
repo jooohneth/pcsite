@@ -135,15 +135,15 @@ export default function Catalog() {
   };
 
   return (
-    <div className="mx-auto p-12 font-mono scale-90">
-      <div className="py-15 text-4xl text-center font-bold">
+    <div className="mx-auto md:px-12 py-6 font-mono lg:scale-90">
+      <div className="pb-6 pt-10 text-4xl text-center font-bold">
         <span className="underline underline-offset-8 hover:underline-offset-[3rem] ease-in-out duration-800">
           Products
         </span>
       </div>
 
-      <div className="flex flex-row justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
+      <div className="pt-8 flex flex-col gap-8 lg:gap-0 lg:flex-row justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
           <FiltersModal onApplyFilters={handleFiltersApply} />
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />

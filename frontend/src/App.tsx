@@ -4,7 +4,7 @@ import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
-    <div className="py-8 px-8 bg-white text-black font-monospace min-h-screen overflow-y-auto">
+    <div className="px-8 py-8 bg-white text-black font-monospace min-h-screen overflow-y-auto overflow-x-hidden">
       <Nav />
       <Catalog />
       <Toaster position="top-center" richColors duration={2000} />

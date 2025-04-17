@@ -168,7 +168,7 @@ export function CartDrawer() {
           size="lg"
           className="bg-white text-black hover:bg-white/70 transition-all duration-800 text-lg relative"
         >
-          <ShoppingCart className="mr-2 h-5 w-5" />
+          <ShoppingCart className="hidden md:flex mr-2 h-5 w-5" />
           Cart
           {totalItems > 0 && (
             <Badge className="absolute -top-2 -right-2 bg-red-600 text-white">

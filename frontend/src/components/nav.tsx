@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import Orders from "@/components/order/orders";
-
+import { Separator } from "@/components/ui/separator";
 const Nav = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -39,11 +39,12 @@ const Nav = () => {
   };
 
   return (
-    <div className="flex justify-between items-center px-10 py-8 bg-black font-mono text-white rounded-md shadow-xl scale-90">
+    <div className="flex flex-col md:flex-row gap-8 md:gap-0 justify-between items-center px-10 py-4 bg-black font-mono text-white rounded-md shadow-xl">
       <Link to="/">
         <h1 className="text-4xl font-bold">Node_Zero</h1>
       </Link>
-      <div className="flex items-center gap-4">
+      <Separator className="md:hidden" />
+      <div className="flex items-center gap-8 md:gap-4">
         <CartDrawer />
         <Popover>
           <PopoverTrigger asChild>

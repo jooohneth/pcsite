@@ -84,10 +84,12 @@ const Orders = () => {
 
         {orders.length > 0 && (
           <>
-            <div className="grid grid-cols-5 items-center gap-4 underline underline-offset-4 text-sm text-muted-foreground">
-              <div className="col-span-1 text-center">Items</div>
+            <div className="grid grid-cols-3 sm:grid-cols-5 items-center gap-4 underline underline-offset-4 text-sm text-muted-foreground">
+              <div className="col-span-1 text-center hidden sm:block">
+                Items
+              </div>
               <div className="col-span-1">Order ID</div>
-              <div className="col-span-1">Date</div>
+              <div className="col-span-1 hidden sm:block">Date</div>
               <div className="col-span-1">Total</div>
               <div className="col-span-1"></div>
             </div>
@@ -95,16 +97,16 @@ const Orders = () => {
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="grid grid-cols-5 items-center gap-4 w-full text-sm font-medium border-b border-neutral-700 py-2"
+                className="grid grid-cols-3 sm:grid-cols-5 items-center gap-4 w-full text-sm font-medium border-b border-neutral-700 py-2"
               >
-                <div className="col-span-1 text-center">
+                <div className="col-span-1 text-center hidden sm:block">
                   {order.items.length}
                 </div>
                 <div className="col-span-1">{`${order.order_number.slice(
                   0,
                   3
                 )}-${order.order_number.slice(-9, -5)}`}</div>
-                <div className="col-span-1">
+                <div className="col-span-1 hidden sm:block">
                   {new Date(order.created_at).toLocaleDateString()}
                 </div>
                 <div className="col-span-1">
