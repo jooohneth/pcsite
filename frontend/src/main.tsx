@@ -19,7 +19,7 @@ const CheckoutForm = () => {
   const fetchClientSecret = useCallback(() => {
     const token = localStorage.getItem("auth-token");
 
-    return fetch("http://127.0.0.1:8000/api/create-checkout-session/", {
+    return fetch("http://3.238.151.248:8000/api/create-checkout-session/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -53,11 +53,14 @@ const Return = () => {
 
     const token = localStorage.getItem("auth-token");
 
-    fetch(`http://127.0.0.1:8000/api/session-status?session_id=${sessionId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch(
+      `http://3.238.151.248:8000/api/session-status?session_id=${sessionId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((res) => res.json())
       .then((data) => {
         setStatus(data.status);

@@ -63,7 +63,7 @@ const CompatibilityModal: React.FC<CompatibilityModalProps> = ({
     const partIds = cartItems.map((item) => item.id);
 
     try {
-      const response = await fetch("http://100.25.138.249:8000/api/cart/tdp/", {
+      const response = await fetch("http://3.238.151.248:8000/api/cart/tdp/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

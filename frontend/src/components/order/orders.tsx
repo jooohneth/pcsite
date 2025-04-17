@@ -49,7 +49,7 @@ const Orders = () => {
     const token = localStorage.getItem("auth-token");
 
     const fetchOrders = async () => {
-      const response = await fetch("http://100.25.138.249:8000/api/orders/", {
+      const response = await fetch("http://3.238.151.248:8000/api/orders/", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
